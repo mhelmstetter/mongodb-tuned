@@ -3,39 +3,36 @@
 
 ```
 mkdir -p /usr/lib/tuned/mongodb-tuned
-cat >> /usr/lib/tuned/mongodb-tuned disable-transparent-hugepages.sh << EOF
-#!/bin/bash
-
-case $1 in
-  start)
-    if [ -d /sys/kernel/mm/transparent_hugepage ]; then
-      thp_path=/sys/kernel/mm/transparent_hugepage
-    elif [ -d /sys/kernel/mm/redhat_transparent_hugepage ]; then
-      thp_path=/sys/kernel/mm/redhat_transparent_hugepage
-    else
-      return 0
-    fi
-
-    echo 'never' > ${thp_path}/enabled
-    echo 'never' > ${thp_path}/defrag
-
-    re='^[0-1]+$'
-    if [[ `cat ${thp_path}/khugepaged/defrag` =~ $re ]]
-    then
-        # RHEL 7
-        echo 0  > ${thp_path}/khugepaged/defrag
-    else
-        # RHEL 6
-        echo 'no' > ${thp_path}/khugepaged/defrag
-    fi
-    unset thp_path
-    ;;
-esac
+cat >> /usr/lib/tuned/mongodb-tuned/script.hex << EOF
+23212f62696e2f626173680a0a6361736520243120696e0a202073746172
+74290a202020206966205b202d64202f7379732f6b65726e656c2f6d6d2f
+7472616e73706172656e745f6875676570616765205d3b207468656e0a20
+20202020207468705f706174683d2f7379732f6b65726e656c2f6d6d2f74
+72616e73706172656e745f68756765706167650a20202020656c6966205b
+202d64202f7379732f6b65726e656c2f6d6d2f7265646861745f7472616e
+73706172656e745f6875676570616765205d3b207468656e0a2020202020
+207468705f706174683d2f7379732f6b65726e656c2f6d6d2f7265646861
+745f7472616e73706172656e745f68756765706167650a20202020656c73
+650a20202020202072657475726e20300a2020202066690a0a2020202065
+63686f20276e6576657227203e20247b7468705f706174687d2f656e6162
+6c65640a202020206563686f20276e6576657227203e20247b7468705f70
+6174687d2f6465667261670a0a2020202072653d275e5b302d315d2b2427
+0a202020206966205b5b206063617420247b7468705f706174687d2f6b68
+75676570616765642f64656672616760203d7e20247265205d5d0a202020
+207468656e0a202020202020202023205248454c20370a20202020202020
+206563686f203020203e20247b7468705f706174687d2f6b687567657061
+6765642f6465667261670a20202020656c73650a20202020202020202320
+5248454c20360a20202020202020206563686f20276e6f27203e20247b74
+68705f706174687d2f6b6875676570616765642f6465667261670a202020
+2066690a0a20202020756e736574207468705f706174680a202020203b3b
+0a657361630a
 EOF
 
-chmod +x /usr/lib/tuned/mongodb-tuned disable-transparent-hugepages.sh
+yum -y install vim-common
+xxd -plain -revert /usr/lib/tuned/mongodb-tuned/script.hex /usr/lib/tuned/mongodb-tuned/disable-transparent-hugepages.sh
+chmod +x /usr/lib/tuned/mongodb-tuned/disable-transparent-hugepages.sh
 
-cat >> /usr/lib/tuned/mongodb-tuned disable-transparent-hugepages.sh << EOF
+cat >> /usr/lib/tuned/mongodb-tuned/tuned.conf << EOF
 [vm]
 transparent_hugepages=never
 
@@ -61,6 +58,7 @@ tuned-adm profile mongodb-tuned
 blockdev --report
 cat /sys/kernel/mm/transparent_hugepage/defrag
 cat /sys/kernel/mm/transparent_hugepage/enabled
+
 ```
 
 
