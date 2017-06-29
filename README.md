@@ -12,7 +12,6 @@ git clone https://github.com/mhelmstetter/mongodb-tuned.git
 Edit:
 ```
 cd /usr/lib/tuned/mongodb-tuned
-chmod +x *.sh
 vi tuned.conf
 ```
 Change the devices settings to reflect the MongoDB data device(s):
